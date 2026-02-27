@@ -1,0 +1,33 @@
+# Android and Gradle
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+build_old*/
+.gradle/
+local.properties
+.idea/
+*.iml
+*.log
+logcat.txt
+
+# Project specific build folders
+nhapp-android/build/
+nhapp-android/app/build/
+nhapp-android/app/build_old*/
+nhapp-android/.gradle/
+
+# Supabase CLI temp files
+supabase/.temp/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Secrets
+google-services.json
