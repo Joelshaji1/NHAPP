@@ -172,7 +172,8 @@ class ChatRepository {
     suspend fun deleteMessage(messageId: String) {
         try {
             val updatePayload = DeleteUpdateMapping(
-                content = "🚫 This message was deleted"
+                content = "🚫 This message was deleted",
+                image_url = null // Explicitly wipe the image link from the database so the receiver can't see it
             )
             postgrest.from("messages").update(updatePayload) {
                 filter {

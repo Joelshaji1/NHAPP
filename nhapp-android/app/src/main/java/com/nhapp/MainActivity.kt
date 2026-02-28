@@ -65,7 +65,8 @@ class MainActivity : ComponentActivity() {
                         onChatClick = { chat ->
                             selectedChatId = chat.id
                             currentScreen = Screen.ChatDetail
-                        }
+                        },
+                        onProfileClick = { currentScreen = Screen.Profile }
                     )
                 }
                 is Screen.ChatDetail -> {
@@ -83,6 +84,16 @@ class MainActivity : ComponentActivity() {
                         onBackClick = { currentScreen = Screen.ChatList }
                     )
                 }
+                is Screen.Profile -> {
+                    val userId = user?.id ?: ""
+                    BackHandler {
+                        currentScreen = Screen.ChatList
+                    }
+                    com.nhapp.ui.profile.ProfileScreen(
+                        viewModel = viewModel(key = "profile_$userId") { com.nhapp.ui.profile.ProfileViewModel(userId) },
+                        onBackClick = { currentScreen = Screen.ChatList }
+                    )
+                }
             }
         }
     }
@@ -92,4 +103,5 @@ sealed class Screen {
     object Login : Screen()
     object ChatList : Screen()
     object ChatDetail : Screen()
+    object Profile : Screen()
 }

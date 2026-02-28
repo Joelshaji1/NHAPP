@@ -3,6 +3,7 @@ package com.nhapp.ui.chat
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -141,10 +143,31 @@ fun ChatDetailScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             modifier = Modifier.size(36.dp),
-                            shape = RoundedCornerShape(18.dp),
-                            color = Color.LightGray
+                            shape = CircleShape,
+                            color = Color(0xFFEEEEEE)
                         ) {
-                            // Avatar placeholder
+                            val partnerAvatar = partner?.avatar_url
+                            if (partnerAvatar != null) {
+                                AsyncImage(
+                                    model = partnerAvatar,
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                val partnerName = partner?.name
+                                if (partnerName != null) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = partnerName.take(1).uppercase(),
+                                            color = Color.Gray,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                } else {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = Color.LightGray)
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
@@ -309,7 +332,8 @@ fun MessageBubble(
         ) {
             Box(modifier = Modifier.padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)) {
                 Column {
-                    if (!message.image_url.isNullOrEmpty()) {
+                    val isDeleted = message.content == "🚫 This message was deleted"
+                    if (!message.image_url.isNullOrEmpty() && !isDeleted) {
                         AsyncImage(
                             model = message.image_url,
                             contentDescription = null,

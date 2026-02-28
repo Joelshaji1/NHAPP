@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
@@ -26,13 +27,15 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
     viewModel: ChatListViewModel,
-    onChatClick: (com.nhapp.data.model.Chat) -> Unit
+    onChatClick: (com.nhapp.data.model.Chat) -> Unit,
+    onProfileClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
     val searchResult by viewModel.searchResult.collectAsState()
@@ -53,6 +56,9 @@ fun ChatListScreen(
                     actions = {
                         IconButton(onClick = { /* Search action */ }) {
                             Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+                        }
+                        IconButton(onClick = onProfileClick) {
+                            Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = Color.White)
                         }
                         val authViewModel: com.nhapp.ui.auth.AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
                         IconButton(onClick = { authViewModel.signOut() }) {
@@ -148,7 +154,7 @@ fun ChatListScreen(
                     searchResult?.let { profile ->
                         Spacer(modifier = Modifier.height(16.dp))
                         ListItem(
-                            leadingContent = { ProfileAvatar(profile.name, size = 50.dp) },
+                            leadingContent = { ProfileAvatar(profile.name, profile.avatar_url, size = 50.dp) },
                             headlineContent = { Text(profile.name ?: "User", fontWeight = FontWeight.Bold) },
                             supportingContent = { Text(profile.email ?: "", color = Color.Gray) },
                             modifier = Modifier.clickable { 
@@ -233,8 +239,9 @@ fun TabItem(label: String, isSelected: Boolean) {
 @Composable
 fun ChatItem(chat: com.nhapp.data.model.ChatWithProfile, onClick: () -> Unit) {
     val name = chat.partnerProfile?.name ?: "Unknown"
+    val avatarUrl = chat.partnerProfile?.avatar_url
     ListItem(
-        leadingContent = { ProfileAvatar(name, size = 56.dp) },
+        leadingContent = { ProfileAvatar(name, avatarUrl, size = 56.dp) },
         headlineContent = { 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
@@ -250,7 +257,7 @@ fun ChatItem(chat: com.nhapp.data.model.ChatWithProfile, onClick: () -> Unit) {
 }
 
 @Composable
-fun ProfileAvatar(name: String?, size: androidx.compose.ui.unit.Dp = 48.dp) {
+fun ProfileAvatar(name: String?, avatarUrl: String? = null, size: androidx.compose.ui.unit.Dp = 48.dp) {
     Box(
         modifier = Modifier
             .size(size)
@@ -258,7 +265,14 @@ fun ProfileAvatar(name: String?, size: androidx.compose.ui.unit.Dp = 48.dp) {
             .background(Color(0xFFEEEEEE)),
         contentAlignment = Alignment.Center
     ) {
-        if (name != null) {
+        if (avatarUrl != null) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "Avatar",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else if (name != null) {
             Text(
                 text = name.take(1).uppercase(),
                 color = Color.Gray,
